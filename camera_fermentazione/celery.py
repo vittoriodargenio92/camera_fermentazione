@@ -41,8 +41,8 @@ def debug_task(self):
 @app.task(name="get_temp")
 def get_temp():
     fermentation = Fermentation.objects.filter(
-        start__lte=timezone.now(),
-        finish__gte=timezone.now()
+        start__lte=datetime.now(),
+        finish__gte=datetime.now()
     ).first()
 
     if fermentation:
@@ -57,7 +57,7 @@ def get_temp():
                 if line:
                     temp = float(line)
                     register = Register.objects.create(
-                        time=timezone.now(),
+                        time=datetime.now(),
                         sensor=sensor,
                         temp_register=temp,
                         fermentation=fermentation
