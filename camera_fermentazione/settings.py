@@ -130,6 +130,8 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Rome'
 
+RELAY_CHANNEL = 4
+
 # export DJANGO_SETTINGS_MODULE=camera_fermentazione.settings
 # celery -A camera_fermentazione worker -l INFO
 # celery -A camera_fermentazione beat -l INFO

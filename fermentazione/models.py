@@ -26,3 +26,10 @@ class Register(models.Model):
     temp_register = models.FloatField(null=True, blank=True)
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     fermentation = models.ForeignKey(Fermentation, on_delete=models.CASCADE)
+
+
+class Actions(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    time = models.DateTimeField()
+    register = models.ForeignKey(Register, on_delete=models.CASCADE)
+    activation = models.BooleanField()

@@ -56,12 +56,39 @@ def get_temp():
                 line = ser.readline().decode('utf-8').rstrip()
                 if line:
                     temp = float(line)
-                    Register.objects.create(
+                    register = Register.objects.create(
                         time=timezone.now(),
                         sensor=sensor,
                         temp_register=temp,
                         fermentation=fermentation
                     )
+                    if register.sensor.activation:
+                        if temp > fermentation.max_temp: # Temperatura alta
+                            action(register=register)
+                        elif temp < fermentation.min_temp: # Temperatura bassa
+                            action(True, register=register)
                     break
                 time.sleep(1)
+
+
+def action(activation=False, register=None):
+
+    try:
+        import RPi.GPIO as GPIO
+        is_rpi = True
+    except ImportError:
+        is_rpi = False
+
+    channel = settings.RELAY_CHANNEL
+
+    if activation and not GPIO.input(channel):
+        if is_rpi:
+            GPIO.output(channel, GPIO.HIGH)
+
+    elif not activation and GPIO.input(channel):
+        if is_rpi:
+            GPIO.output(channel, GPIO.LOW)
+
+
+
 

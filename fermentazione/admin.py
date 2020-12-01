@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 
-from fermentazione.models import Fermentation, Sensor, Register
+from fermentazione.models import Fermentation, Sensor, Register, Actions
 
 
 class FermentationAdmin(admin.ModelAdmin):
@@ -32,9 +32,14 @@ class RegisterAdmin(admin.ModelAdmin):
     get_fermentation.short_description = 'Fermentation'
 
 
+class ActionsAdmin(admin.ModelAdmin):
+    list_display = ['time', 'activation', 'register', ]
+
+
 admin.site.register(Fermentation, FermentationAdmin)
 admin.site.register(Sensor, SensorAdmin)
 admin.site.register(Register, RegisterAdmin)
+admin.site.register(Actions, ActionsAdmin)
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
