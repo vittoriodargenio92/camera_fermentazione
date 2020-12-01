@@ -75,6 +75,8 @@ def action(activation=False, register=None):
 
     try:
         import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
         is_rpi = True
     except ImportError:
         is_rpi = False
