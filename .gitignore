@@ -2,5 +2,7 @@
 venv/
 *.sqlite3
 celerybeat-schedule
+celerybeat-schedule.db
 __pycache__/
 *.pyc
+/static/
