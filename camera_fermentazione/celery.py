@@ -74,12 +74,9 @@ def get_temp():
 
 def action(activation=False, register=None):
 
-    try:
-        import RPi.GPIO as GPIO
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
-    except ImportError:
-        return
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
 
     channel = settings.RELAY_CHANNEL
 
