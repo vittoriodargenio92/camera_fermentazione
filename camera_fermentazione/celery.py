@@ -9,6 +9,8 @@ from celery.schedules import crontab
 from django.conf import settings
 
 import django
+from django.utils import timezone
+
 django.setup()
 
 # set the default Django settings module for the 'celery' program.
@@ -39,26 +41,27 @@ def debug_task(self):
 @app.task(name="get_temp")
 def get_temp():
     fermentation = Fermentation.objects.filter(
-        start__lte=datetime.now(),
-        finish__gte=datetime.now()
+        start__lte=timezone.now(),
+        finish__gte=timezone.now()
     ).first()
 
-    sensors = Sensor.objects.filter(active=True)
+    if fermentation:
+        sensors = Sensor.objects.filter(active=True)
 
-    for sensor in sensors:
-        ser = serial.Serial(sensor.port, 9600, timeout=1)
-        ser.flush()
+        for sensor in sensors:
+            ser = serial.Serial(sensor.port, 9600, timeout=1)
+            ser.flush()
 
-        while True:
-            line = ser.readline().decode('utf-8').rstrip()
-            if line:
-                temp = float(line)
-                Register.objects.create(
-                    time=datetime.now(),
-                    sensor=sensor,
-                    temp_register=temp,
-                    fermentation=fermentation
-                )
-                break
-            time.sleep(1)
+            while True:
+                line = ser.readline().decode('utf-8').rstrip()
+                if line:
+                    temp = float(line)
+                    Register.objects.create(
+                        time=timezone.now(),
+                        sensor=sensor,
+                        temp_register=temp,
+                        fermentation=fermentation
+                    )
+                    break
+                time.sleep(1)
 
