@@ -9,12 +9,11 @@ from celery.schedules import crontab
 from django.conf import settings
 
 import django
-from django.utils import timezone
 
 django.setup()
 
 # set the default Django settings module for the 'celery' program.
-from fermentazione.models import Fermentation, Sensor, Register
+from fermentazione.models import Fermentation, Sensor, Register, Actions
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'camera_fermentazione.settings')
 app = Celery('camera_fermentazione')
@@ -72,24 +71,41 @@ def get_temp():
 
 
 def active(register=None):
+    try:
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
 
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
+        channel = settings.RELAY_CHANNEL
 
-    channel = settings.RELAY_CHANNEL
-
-    GPIO.output(channel, GPIO.HIGH)
+        GPIO.output(channel, GPIO.HIGH)
+    except ImportError:
+        pass
+    finally:
+        Actions.objects.create(
+            register=register,
+            time=register.time,
+            activation=True
+        )
 
 
 def deactive(register=None):
 
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
+    try:
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
 
-    channel = settings.RELAY_CHANNEL
+        channel = settings.RELAY_CHANNEL
 
-    GPIO.output(channel, GPIO.LOW)
+        GPIO.output(channel, GPIO.LOW)
+    except ImportError:
+        pass
+    finally:
+        Actions.objects.create(
+            register=register,
+            time=register.time,
+            activation=False
+        )
 
 
