@@ -126,6 +126,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Rome'
 
 # export DJANGO_SETTINGS_MODULE=camera_fermentazione.settings
 # celery -A camera_fermentazione worker -l INFO
