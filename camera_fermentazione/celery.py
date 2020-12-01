@@ -64,15 +64,14 @@ def get_temp():
                     )
                     if register.sensor.activation:
                         if temp > fermentation.max_temp: # Temperatura alta
-                            # action(register=register)
-                            action(True, register=register)
+                            active()
                         elif temp < fermentation.min_temp: # Temperatura bassa
-                            action(True, register=register)
+                            deactive()
                     break
                 time.sleep(1)
 
 
-def action(activation=False, register=None):
+def active(register=None):
 
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
@@ -80,12 +79,17 @@ def action(activation=False, register=None):
 
     channel = settings.RELAY_CHANNEL
 
-    if activation and not GPIO.input(channel):
-        GPIO.output(channel, GPIO.HIGH)
-
-    elif not activation and GPIO.input(channel):
-        GPIO.output(channel, GPIO.LOW)
+    GPIO.output(channel, GPIO.HIGH)
 
 
+def deactive(register=None):
+
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
+
+    channel = settings.RELAY_CHANNEL
+
+    GPIO.output(channel, GPIO.LOW)
 
 
