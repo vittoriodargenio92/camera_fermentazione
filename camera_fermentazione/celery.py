@@ -37,6 +37,21 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
+def actions(is_active=False):
+    try:
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
+
+        channel = settings.RELAY_CHANNEL
+        if is_active:
+            GPIO.output(channel, GPIO.HIGH)
+        else:
+            GPIO.output(channel, GPIO.LOW)
+    except ImportError:
+        pass
+
+
 @app.task(name="get_temp")
 def get_temp():
     fermentation = Fermentation.objects.filter(
@@ -63,27 +78,15 @@ def get_temp():
                     )
                     if register.sensor.activation:
                         if temp > fermentation.max_temp: # Temperatura alta
-                            actions(False)
-                            register.is_active = False
-                        elif temp < fermentation.min_temp: # Temperatura bassa
-                            actions(True)
+                            actions(is_active=False)
                             register.is_active = True
+                        elif temp < fermentation.min_temp: # Temperatura bassa
+                            actions(is_active=True)
+                            register.is_active = False
                         register.save()
                     break
                 time.sleep(1)
 
 
-def actions(is_active=False):
-    try:
-        import RPi.GPIO as GPIO
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
 
-        channel = settings.RELAY_CHANNEL
-        if is_active:
-            GPIO.output(channel, GPIO.HIGH)
-        else:
-            GPIO.output(channel, GPIO.LOW)
-    except ImportError:
-        pass
 
