@@ -78,10 +78,10 @@ def get_temp():
                     )
                     if register.sensor.activation:
                         if temp > fermentation.max_temp: # Temperatura alta
-                            actions(is_active=False)
+                            actions(is_active=True)
                             register.is_active = True
                         elif temp < fermentation.min_temp: # Temperatura bassa
-                            actions(is_active=True)
+                            actions(is_active=False)
                             register.is_active = False
                         register.save()
                     break
