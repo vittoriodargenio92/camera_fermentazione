@@ -7,8 +7,8 @@ class Fermentation(models.Model):
     description = models.TextField(null=True, blank=True)
     start = models.DateTimeField()
     finish = models.DateTimeField()
-    max_temp = models.FloatField(default=18.00)
-    min_temp = models.FloatField(default=22.00)
+    max_temp = models.FloatField(default=22.00)
+    min_temp = models.FloatField(default=18.00)
 
 
 class Sensor(models.Model):
@@ -26,10 +26,5 @@ class Register(models.Model):
     temp_register = models.FloatField(null=True, blank=True)
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     fermentation = models.ForeignKey(Fermentation, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=False)
 
-
-class Actions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    time = models.DateTimeField()
-    register = models.ForeignKey(Register, on_delete=models.CASCADE)
-    activation = models.BooleanField()

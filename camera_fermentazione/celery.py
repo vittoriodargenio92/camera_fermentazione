@@ -13,7 +13,7 @@ import django
 django.setup()
 
 # set the default Django settings module for the 'celery' program.
-from fermentazione.models import Fermentation, Sensor, Register, Actions
+from fermentazione.models import Fermentation, Sensor, Register
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'camera_fermentazione.settings')
 app = Celery('camera_fermentazione')
@@ -63,49 +63,27 @@ def get_temp():
                     )
                     if register.sensor.activation:
                         if temp > fermentation.max_temp: # Temperatura alta
-                            active()
+                            actions(False)
+                            register.is_active = False
                         elif temp < fermentation.min_temp: # Temperatura bassa
-                            deactive()
+                            actions(True)
+                            register.is_active = True
+                        register.save()
                     break
                 time.sleep(1)
 
 
-def active(register=None):
+def actions(is_active=False):
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
 
         channel = settings.RELAY_CHANNEL
-
-        GPIO.output(channel, GPIO.HIGH)
+        if is_active:
+            GPIO.output(channel, GPIO.HIGH)
+        else:
+            GPIO.output(channel, GPIO.LOW)
     except ImportError:
         pass
-    finally:
-        Actions.objects.create(
-            register=register,
-            time=register.time,
-            activation=True
-        )
-
-
-def deactive(register=None):
-
-    try:
-        import RPi.GPIO as GPIO
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
-
-        channel = settings.RELAY_CHANNEL
-
-        GPIO.output(channel, GPIO.LOW)
-    except ImportError:
-        pass
-    finally:
-        Actions.objects.create(
-            register=register,
-            time=register.time,
-            activation=False
-        )
-
 
