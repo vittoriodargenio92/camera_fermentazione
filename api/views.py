@@ -19,5 +19,5 @@ class RegisterViewSet(viewsets.ViewSet):
     queryset = Register.objects.all()
 
     def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
+        serializer = self.serializer_class(self.queryset.filter(sensor__activation=True), many=True)
         return Response(serializer.data)

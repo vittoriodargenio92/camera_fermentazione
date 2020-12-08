@@ -10,6 +10,8 @@ from django.conf import settings
 
 import django
 
+from camera_fermentazione.settings import MAX_DELAY_TEMP
+
 django.setup()
 
 # set the default Django settings module for the 'celery' program.
@@ -80,9 +82,13 @@ def get_temp():
                         if temp > fermentation.max_temp: # Temperatura alta
                             actions(is_active=True)
                             register.is_active = False
+                            if temp > (fermentation.max_temp + MAX_DELAY_TEMP):
+                                pass # Send mail
                         elif temp < fermentation.min_temp: # Temperatura bassa
                             actions(is_active=False)
                             register.is_active = True
+                            if temp > (fermentation.max_temp - MAX_DELAY_TEMP):
+                                pass # Send mail
                         register.save()
                     break
                 time.sleep(1)
