@@ -50,9 +50,9 @@ class RegisterChartViewSet(viewsets.ViewSet):
                 if register.time not in data['labels']:
                     data['labels'].append(register.time)
                 if register.sensor.activation:
-                    data['internal'].append(register.temp_register)
+                    data['internal'].append(int(register.temp_register))
                 if not register.sensor.activation:
-                    data['external'].append(register.temp_register)
+                    data['external'].append(int(register.temp_register))
 
             serilizer = RegisterChartResponseSerilizer(data=data)
             serilizer.is_valid()
