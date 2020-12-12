@@ -56,24 +56,18 @@ def actions(is_active=False):
 
 @app.task(name="get_temp")
 def get_temp():
-    fermentation = Fermentation.objects.filter(
-        start__lte=datetime.now(),
-        finish__gte=datetime.now()
-    ).first()
 
-    if fermentation:
-        sensors = Sensor.objects.filter(active=True)
-
-        for sensor in sensors:
+    now = datetime.now()
+    for fermentation in Fermentation.objects.filter(start__lte=now, finish__gte=now):
+        for sensor in fermentation.sensors.all():
             ser = serial.Serial(sensor.port, 9600, timeout=1)
             ser.flush()
-
             while True:
                 line = ser.readline().decode('utf-8').rstrip()
                 if line:
                     temp = float(line)
                     register = Register.objects.create(
-                        time=datetime.now(),
+                        time=now,
                         sensor=sensor,
                         temp_register=temp,
                         fermentation=fermentation

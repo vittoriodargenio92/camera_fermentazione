@@ -20,22 +20,17 @@ class SensorAdmin(admin.ModelAdmin):
 
 
 class RegisterAdmin(admin.ModelAdmin):
-    list_display = ['time', 'temp_register', 'get_sensor', 'get_fermentation']
+    list_display = ['time', 'temp_register', 'get_sensor']
 
     def get_sensor(self, obj):
         return obj.sensor.name
 
-    def get_fermentation(self, obj):
-        return obj.fermentation.name
-
     get_sensor.short_description = 'Sensor'
-    get_fermentation.short_description = 'Fermentation'
 
 
 admin.site.register(Fermentation, FermentationAdmin)
 admin.site.register(Sensor, SensorAdmin)
 admin.site.register(Register, RegisterAdmin)
-
 
 admin.site.unregister(User)
 admin.site.unregister(Group)

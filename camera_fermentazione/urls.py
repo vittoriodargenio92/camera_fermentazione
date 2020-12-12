@@ -20,12 +20,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 
-from api.views import RegisterViewSet
+from api.views import RegisterChartViewSet
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register('register', RegisterViewSet, basename='register')
+router.register('register', RegisterChartViewSet, basename='register')
 
 urlpatterns = [
     path('', admin.site.urls),
     path('api/', include(router.urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
