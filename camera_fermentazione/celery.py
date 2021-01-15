@@ -67,7 +67,7 @@ def reset_all(slug=None):
             actions()
         elif slug == 'HEIGHT':
             actions(is_active=True)
-        elif slice == 'LOW':
+        elif slug == 'LOW':
             actions(is_active=False)
 
 
