@@ -60,6 +60,11 @@ def actions(is_active=None):
         pass
 
 
+@app.task(name="reset_all")
+def reset_all():
+    actions()
+
+
 @app.task(name="get_temp")
 def get_temp():
 
@@ -78,7 +83,7 @@ def get_temp():
                         temp_register=temp
                     )
                     if register.sensor.activation:
-                        if fermentation.is_correct(temp):
+                        if fermentation.is_correct(temp): # Temperatura giusta
                             actions()
                         elif fermentation.is_height(temp): # Temperatura alta
                             actions(is_active=True)
