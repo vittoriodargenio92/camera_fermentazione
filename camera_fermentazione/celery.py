@@ -79,7 +79,7 @@ def actions(is_active=None):
             off_cold()
             on_hot()
         elif not is_active:
-            off_cold()
+            off_hot()
             on_cold()
 
     except ImportError:
