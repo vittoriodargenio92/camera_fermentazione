@@ -32,14 +32,14 @@ router.register('media-temperatura-giorni', RegisterChartMegiaGiorniViewSet, bas
 
 
 @api_view()
-def reset(request):
-    reset_all.delay()
-    return Response({})
+def reset(request, slug=None):
+    # reset_all.delay()
+    return Response({'slug': slug})
 
 
 urlpatterns = [
     path('', admin.site.urls),
-    path('reset/all', reset),
+    path('reset/?P<slug>[a-z]+', reset),
     path('api/', include(router.urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
