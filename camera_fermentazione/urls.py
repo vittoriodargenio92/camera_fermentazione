@@ -23,7 +23,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from api.views import RegisterChartViewSet, RegisterChartMegiaGiorniViewSet, FermentationViewSet
-from camera_fermentazione.celery import reset_all
+from camera_fermentazione.celery import commad_relay
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register('fermentation', FermentationViewSet, basename='fermentation')
@@ -32,14 +32,14 @@ router.register('media-temperatura-giorni', RegisterChartMegiaGiorniViewSet, bas
 
 
 @api_view()
-def reset(request, slug=None):
-    reset_all.delay(slug)
+def relay_command(request, command=None, slug=None):
+    commad_relay.delay(command, slug)
     return Response({'slug': slug})
 
 
 urlpatterns = [
     path('', admin.site.urls),
-    path('reset/<str:slug>', reset),
+    path('relay/<str:command>/<str:slug>', relay_command),
     path('api/', include(router.urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

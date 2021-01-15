@@ -16,6 +16,7 @@ django.setup()
 
 # set the default Django settings module for the 'celery' program.
 from fermentazione.models import Fermentation, Sensor, Register
+import RPi.GPIO as GPIO
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'camera_fermentazione.settings')
 app = Celery('camera_fermentazione')
@@ -39,43 +40,79 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
+def off_all():
+    GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
+    GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+
+
+def off_hot():
+    GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
+
+
+def off_cold():
+    GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+
+
+def on_all():
+    GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
+    GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
+
+
+def on_hot():
+    GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
+
+
+def on_cold():
+    GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
+
+
 def actions(is_active=None):
     try:
-        import RPi.GPIO as GPIO
+
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(settings.RELAY_CHANNEL_HOT, GPIO.OUT)
         GPIO.setup(settings.RELAY_CHANNEL_COLD, GPIO.OUT)
 
         if is_active is None:
-            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
-            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+            off_all()
         elif is_active:
-            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
-            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+            off_cold()
+            on_hot()
         elif not is_active:
-            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
-            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
+            off_cold()
+            on_cold()
 
     except ImportError:
         pass
 
 
 @app.task(name="reset_all")
-def reset_all(slug=None):
-    if slug:
-        if slug == 'ALL':
-            actions()
-        elif slug == 'HEIGHT':
-            actions(is_active=True)
-        elif slug == 'LOW':
-            actions(is_active=False)
+def commad_relay(command=None, slug=None):
+    if command and slug:
+        if command == 'OFF':
+            if slug == 'ALL':
+                actions()
+            elif slug == 'HOT':
+                actions(is_active=True)
+            elif slug == 'COLD':
+                actions(is_active=False)
+        elif command == 'ON':
+            if slug == 'ALL':
+                actions()
+            elif slug == 'HOT':
+                actions(is_active=True)
+            elif slug == 'COLD':
+                actions(is_active=False)
 
 
 @app.task(name="get_temp")
 def get_temp():
-
     now = datetime.now()
-    for fermentation in Fermentation.objects.filter(start__lte=now, finish__gte=now):
+    fermentations = Fermentation.objects.filter(start__lte=now, finish__gte=now)
+    if not fermentations:
+        actions()
+
+    for fermentation in fermentations:
         for sensor in fermentation.sensors.all():
             ser = serial.Serial(sensor.port, 9600, timeout=1)
             ser.flush()
@@ -89,16 +126,12 @@ def get_temp():
                         temp_register=temp
                     )
                     if register.sensor.activation:
-                        if fermentation.is_correct(temp): # Temperatura giusta
+                        if fermentation.is_correct(temp):  # Temperatura giusta
                             actions()
-                        elif fermentation.is_height(temp): # Temperatura alta
+                        elif fermentation.is_height(temp):  # Temperatura alta
                             actions(is_active=True)
-                        elif fermentation.is_low(temp): # Temperatura bassa
+                        elif fermentation.is_low(temp):  # Temperatura bassa
                             actions(is_active=False)
                         register.save()
                     break
                 time.sleep(1)
-
-
-
-
