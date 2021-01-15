@@ -81,9 +81,9 @@ def get_temp():
                         if fermentation.is_correct(temp):
                             actions()
                         elif fermentation.is_height(temp): # Temperatura alta
-                            actions(is_active=True)
-                        elif fermentation.is_low(temp): # Temperatura bassa
                             actions(is_active=False)
+                        elif fermentation.is_low(temp): # Temperatura bassa
+                            actions(is_active=True)
                         register.save()
                     break
                 time.sleep(1)
