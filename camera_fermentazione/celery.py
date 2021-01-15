@@ -47,14 +47,14 @@ def actions(is_active=None):
         GPIO.setup(settings.RELAY_CHANNEL_COLD, GPIO.OUT)
 
         if is_active is None:
-            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
-            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
-        elif is_active:
             GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
-            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
-        elif not is_active:
+            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+        elif is_active:
             GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
             GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+        elif not is_active:
+            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
+            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
 
     except ImportError:
         pass
@@ -81,9 +81,9 @@ def get_temp():
                         if fermentation.is_correct(temp):
                             actions()
                         elif fermentation.is_height(temp): # Temperatura alta
-                            actions(is_active=False)
-                        elif fermentation.is_low(temp): # Temperatura bassa
                             actions(is_active=True)
+                        elif fermentation.is_low(temp): # Temperatura bassa
+                            actions(is_active=False)
                         register.save()
                     break
                 time.sleep(1)
