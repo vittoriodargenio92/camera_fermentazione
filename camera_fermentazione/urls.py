@@ -39,7 +39,7 @@ def reset(request, slug=None):
 
 urlpatterns = [
     path('', admin.site.urls),
-    path('reset/?P<slug>[a-z]+', reset),
+    path('reset/<str:slug>', reset),
     path('api/', include(router.urls)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
