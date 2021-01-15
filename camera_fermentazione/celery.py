@@ -91,18 +91,18 @@ def commad_relay(command=None, slug=None):
     if command and slug:
         if command == 'OFF':
             if slug == 'ALL':
-                actions()
+                off_all()
             elif slug == 'HOT':
-                actions(is_active=True)
+                off_hot()
             elif slug == 'COLD':
-                actions(is_active=False)
+                off_cold()
         elif command == 'ON':
             if slug == 'ALL':
-                actions()
+                on_all()
             elif slug == 'HOT':
-                actions(is_active=True)
+                on_hot()
             elif slug == 'COLD':
-                actions(is_active=False)
+                on_cold()
 
 
 @app.task(name="get_temp")

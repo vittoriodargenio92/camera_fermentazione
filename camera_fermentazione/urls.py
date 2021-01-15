@@ -34,7 +34,7 @@ router.register('media-temperatura-giorni', RegisterChartMegiaGiorniViewSet, bas
 @api_view()
 def relay_command(request, command=None, slug=None):
     commad_relay.delay(command, slug)
-    return Response({'slug': slug})
+    return Response({'command': command, 'slug': slug})
 
 
 urlpatterns = [
