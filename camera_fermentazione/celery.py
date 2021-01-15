@@ -39,17 +39,23 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
-def actions(is_active=False):
+def actions(is_active=None):
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(settings.RELAY_CHANNEL, GPIO.OUT)
+        GPIO.setup(settings.RELAY_CHANNEL_HOT, GPIO.OUT)
+        GPIO.setup(settings.RELAY_CHANNEL_COLD, GPIO.OUT)
 
-        channel = settings.RELAY_CHANNEL
-        if is_active:
-            GPIO.output(channel, GPIO.HIGH)
-        else:
-            GPIO.output(channel, GPIO.LOW)
+        if is_active is None:
+            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
+            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
+        elif is_active:
+            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.HIGH)
+            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.LOW)
+        elif not is_active:
+            GPIO.output(settings.RELAY_CHANNEL_HOT, GPIO.LOW)
+            GPIO.output(settings.RELAY_CHANNEL_COLD, GPIO.HIGH)
+
     except ImportError:
         pass
 
@@ -72,16 +78,12 @@ def get_temp():
                         temp_register=temp
                     )
                     if register.sensor.activation:
-                        if temp > fermentation.max_temp: # Temperatura alta
+                        if fermentation.is_correct(temp):
+                            actions()
+                        elif fermentation.is_height(temp): # Temperatura alta
                             actions(is_active=True)
-                            register.is_active = False
-                            # if temp > (fermentation.max_temp + MAX_DELAY_TEMP):
-                            #     pass # Send mail
-                        elif temp < fermentation.min_temp: # Temperatura bassa
+                        elif fermentation.is_low(temp): # Temperatura bassa
                             actions(is_active=False)
-                            register.is_active = True
-                            # if temp > (fermentation.max_temp - MAX_DELAY_TEMP):
-                            #     pass # Send mail
                         register.save()
                     break
                 time.sleep(1)

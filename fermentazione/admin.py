@@ -7,7 +7,7 @@ from fermentazione.models import Fermentation, Sensor, Register
 
 
 class FermentationAdmin(admin.ModelAdmin):
-    list_display = ['name', 'is_finish', 'start', 'finish', 'max_temp', 'min_temp']
+    list_display = ['name', 'is_finish', 'start', 'finish', 'temp', 'delta']
 
     def is_finish(self, obj):
         return obj.finish < datetime.now()
