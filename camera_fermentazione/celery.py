@@ -61,8 +61,14 @@ def actions(is_active=None):
 
 
 @app.task(name="reset_all")
-def reset_all():
-    actions()
+def reset_all(slug=None):
+    if slug:
+        if slug == 'ALL':
+            actions()
+        elif slug == 'HEIGHT':
+            actions(is_active=True)
+        elif slice == 'LOW':
+            actions(is_active=False)
 
 
 @app.task(name="get_temp")

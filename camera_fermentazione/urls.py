@@ -33,7 +33,7 @@ router.register('media-temperatura-giorni', RegisterChartMegiaGiorniViewSet, bas
 
 @api_view()
 def reset(request, slug=None):
-    # reset_all.delay()
+    reset_all.delay(slug)
     return Response({'slug': slug})
 
 
